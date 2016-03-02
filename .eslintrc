@@ -1,0 +1,14 @@
+{
+  "extends": "airbnb/base",
+  "rules": {
+    "semi": [2, "never"],
+    "comma-dangle": [2, "never"],
+    "generator-star-spacing": [2, {"before": false, "after": true}],
+    "no-unused-vars": [1, { "args": "none" }],
+    "max-len": [1, 110, 4],
+    "key-spacing": [0, { "align": "value" }],
+    "no-multi-spaces": [2, { exceptions: { "ImportDeclaration": true, "VariableDeclarator": true } }],
+    "no-param-reassign": [2, { "props": false }],
+    "quote-props": [2, "consistent-as-needed"]
+  }
+}
