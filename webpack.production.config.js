@@ -1,13 +1,7 @@
-// Run like this:
-// cd client && webpack-dev-server --config webpack.development.config.js --hot --colors --progress --inline
-
 var config       = require("./webpack.base.config");
 var webpack      = require("webpack");
 var path         = require("path");
 var CleanWebpackPlugin = require('clean-webpack-plugin');
-
-config.debug = true;
-config.displayErrorDetails = true;
 
 config.output = {
   path: "./dist",
@@ -20,7 +14,7 @@ config.module.loaders.push(
 );
 
 config.plugins.push(
-    new CleanWebpackPlugin(['dist'], {
+  new CleanWebpackPlugin(['dist'], {
     root: path.resolve(__dirname),
     verbose: true,
     dry: false
