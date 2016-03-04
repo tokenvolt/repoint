@@ -9,7 +9,7 @@
     "build:production": "NODE_ENV=production webpack --config webpack.production.config.js",
     "analyze:production": "NODE_ENV=production webpack --config webpack.production.config.js --json | node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer"
   },
-  "author": "JetRuby Agency <engineering@jetruby.com> (http://jetruby.com)",
+  "author": "Alex Khrustalev",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.6.4",
