@@ -1,6 +1,6 @@
 {
   "name": "repoint",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Endpoint generator based on fetch",
   "main": "src/index.js",
   "scripts": {
