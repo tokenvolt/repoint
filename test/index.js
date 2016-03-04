@@ -22,7 +22,6 @@ test('missingParams', t => {
 })
 
 test('Repoint constructor', t => {
-  console.log(repoint)
   t.equal(repoint.config.host, 'http://api.example/v1/', 'API host')
   t.end()
 })

@@ -16,7 +16,7 @@ const commonMethods = {
     let queryParams
     let buildedUrl
 
-    if (!R.isEmpty(missingIdAttibutes)) {
+    if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
     }
 
@@ -51,7 +51,7 @@ const commonMethods = {
     let bodyParams
     let buildedUrl
 
-    if (!R.isEmpty(missingIdAttibutes)) {
+    if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
     }
 
@@ -88,7 +88,7 @@ const commonMethods = {
     let bodyParams
     let buildedUrl
 
-    if (!R.isEmpty(missingIdAttibutes)) {
+    if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
     }
 
@@ -124,7 +124,7 @@ const commonMethods = {
     const lastIdAttribute = idAttributes[0]
     let buildedUrl
 
-    if (!R.isEmpty(missingIdAttibutes)) {
+    if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
     }
 
@@ -181,12 +181,12 @@ class Repoint {
 
     const collectionUrl = urls.collection
     const memberUrl     = urls.member
-    const namespacedIdAttribute = R.concat(pluralize(name, 1))(capitalize(idAttribute))
+    const namespacedIdAttribute = `${pluralize(name, 1)}${capitalize(idAttribute)}`
 
     const nonRestful = nonRestfulRoutes.reduce((result, routeConfig) => {
-      const url = R.concat(urls[routeConfig.on])(`/${routeConfig.name}`)
-      result[routeConfig.name] = commonMethods[routeConfig.method](url)(R.flatten(
-        [...nestedNamespacedIdAttributes, (routeConfig.on === 'collection' ? IS_COLLECTION : idAttribute)])
+      const url = `${urls[routeConfig.on]}/${routeConfig.name}`
+      result[routeConfig.name] = commonMethods[routeConfig.method](url)(
+        [...nestedNamespacedIdAttributes, (routeConfig.on === 'collection' ? IS_COLLECTION : idAttribute)].reduce((a, b) => a.concat(b), [])
       )
       return result
     }, {})
