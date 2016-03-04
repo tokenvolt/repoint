@@ -1,6 +1,6 @@
 {
   "name": "repoint",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Endpoint generator based on fetch",
   "main": "src/index.js",
   "scripts": {
@@ -9,7 +9,10 @@
     "build:production": "NODE_ENV=production webpack --config webpack.production.config.js",
     "analyze:production": "NODE_ENV=production webpack --config webpack.production.config.js --json | node_modules/webpack-bundle-size-analyzer/webpack-bundle-size-analyzer"
   },
-  "repository" : { "type" : "git", "url" : "https://github.com/tokenvolt/repoint.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tokenvolt/repoint.git"
+  },
   "author": "Alex Khrustalev",
   "license": "ISC",
   "devDependencies": {
