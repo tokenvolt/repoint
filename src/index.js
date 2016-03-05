@@ -1,9 +1,8 @@
 import fetch from 'isomorphic-fetch'
 import R from './ramda/ramda.repoint'
-import Path from 'path-parser'
 import param from 'jquery-param'
 import pluralize from 'pluralize'
-import { capitalize, missingParams } from './helpers'
+import { capitalize, missingParams, urlParamsTransformer } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
 const commonMethods = {
@@ -25,7 +24,7 @@ const commonMethods = {
     }
 
     if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
-      buildedUrl = new Path(url).build(idAttributeObject)
+      buildedUrl = urlParamsTransformer(url, idAttributeObject)
       queryParams = R.omit(idAttributes, params)
     }
 
@@ -63,7 +62,7 @@ const commonMethods = {
 
     if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
       bodyParams = R.omit(idAttributes, params)
-      buildedUrl = new Path(url).build(idAttributeObject)
+      buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
@@ -100,7 +99,7 @@ const commonMethods = {
 
     if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
       bodyParams = R.omit(idAttributes, params)
-      buildedUrl = new Path(url).build(idAttributeObject)
+      buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
@@ -134,7 +133,7 @@ const commonMethods = {
     }
 
     if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
-      buildedUrl = new Path(url).build(idAttributeObject)
+      buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
