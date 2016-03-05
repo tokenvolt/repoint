@@ -1,3 +1,5 @@
+// ./scripts/build -- src/contains.js src/pick.js src/curry.js src/omit.js src/merge.js src/append.js src/keys.js src/isEmpty.js  > dist/ramda.custom.js
+
 ;(function() {
 
   'use strict';
@@ -108,8 +110,32 @@
         };
     }();
 
+    /**
+     * Tests whether or not an object is an array.
+     *
+     * @private
+     * @param {*} val The object to test.
+     * @return {Boolean} `true` if `val` is an array, `false` otherwise.
+     * @example
+     *
+     *      _isArray([]); //=> true
+     *      _isArray(null); //=> false
+     *      _isArray({}); //=> false
+     */
+    var _isArray = Array.isArray || function _isArray(val) {
+        return val != null && val.length >= 0 && Object.prototype.toString.call(val) === '[object Array]';
+    };
+
+    var _isObject = function _isObject(x) {
+        return Object.prototype.toString.call(x) === '[object Object]';
+    };
+
     var _isPlaceholder = function _isPlaceholder(a) {
         return a != null && typeof a === 'object' && a['@@functional/placeholder'] === true;
+    };
+
+    var _isString = function _isString(x) {
+        return Object.prototype.toString.call(x) === '[object String]';
     };
 
     /**
@@ -305,6 +331,36 @@
             return _curry1(fn);
         }
         return _arity(length, _curryN(length, [], fn));
+    });
+
+    /**
+     * Returns the empty value of its argument's type. Ramda defines the empty
+     * value of Array (`[]`), Object (`{}`), String (`''`), and Arguments. Other
+     * types are supported if they define `<Type>.empty` and/or
+     * `<Type>.prototype.empty`.
+     *
+     * Dispatches to the `empty` method of the first argument, if present.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.3.0
+     * @category Function
+     * @sig a -> a
+     * @param {*} x
+     * @return {*}
+     * @example
+     *
+     *      R.empty(Just(42));      //=> Nothing()
+     *      R.empty([1, 2, 3]);     //=> []
+     *      R.empty('unicorns');    //=> ''
+     *      R.empty({x: 1, y: 2});  //=> {}
+     */
+    // else
+    var empty = _curry1(function empty(x) {
+        return x != null && typeof x.empty === 'function' ? x.empty() : x != null && x.constructor != null && typeof x.constructor.empty === 'function' ? x.constructor.empty() : _isArray(x) ? [] : _isString(x) ? '' : _isObject(x) ? {} : _isArguments(x) ? function () {
+            return arguments;
+        }() : // else
+        void 0;
     });
 
     /**
@@ -681,6 +737,31 @@
     });
 
     /**
+     * Returns `true` if the given value is its type's empty value; `false`
+     * otherwise.
+     *
+     * @func
+     * @memberOf R
+     * @since v0.1.0
+     * @category Logic
+     * @sig a -> Boolean
+     * @param {*} x
+     * @return {Boolean}
+     * @see R.empty
+     * @example
+     *
+     *      R.isEmpty([1, 2, 3]);   //=> false
+     *      R.isEmpty([]);          //=> true
+     *      R.isEmpty('');          //=> true
+     *      R.isEmpty(null);        //=> false
+     *      R.isEmpty({});          //=> true
+     *      R.isEmpty({length: 0}); //=> false
+     */
+    var isEmpty = _curry1(function isEmpty(x) {
+        return x != null && equals(x, empty(x));
+    });
+
+    /**
      * Creates a new object with the own properties of the two provided objects. If
      * a key exists in both objects, the provided function is applied to the values
      * associated with the key in each object, with the result being used as the
@@ -852,6 +933,7 @@
         append: append,
         contains: contains,
         curry: curry,
+        isEmpty: isEmpty,
         keys: keys,
         merge: merge,
         omit: omit,

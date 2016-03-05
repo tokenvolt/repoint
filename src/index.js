@@ -1,5 +1,4 @@
 import fetch from 'isomorphic-fetch'
-import { camelizeKeys } from 'humps'
 import R from './ramda/ramda.repoint'
 import Path from 'path-parser'
 import param from 'jquery-param'
@@ -30,13 +29,15 @@ const commonMethods = {
       queryParams = R.omit(idAttributes, params)
     }
 
-    return fetch(`${config.host}${buildedUrl}?${param(queryParams)}`, {
+    const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(queryParams)}`
+
+    return fetch(fullUrl, {
       headers: R.merge({
         'Content-Type': 'application/json'
       }, headers)
     })
       .then(response => response.json())
-      .then(json => camelizeKeys(json))
+      .then(json => config.responseDecorator(json))
       .then(
         response => response,
         error => ({ error: error.message || 'Something bad happened' })
@@ -73,7 +74,7 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => camelizeKeys(json))
+      .then(json => config.responseDecorator(json))
       .then(
         response => response,
         error => ({ error: error.message || 'Something bad happened' })
@@ -110,7 +111,7 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => camelizeKeys(json))
+      .then(json => config.responseDecorator(json))
       .then(
         response => response,
         error => ({ error: error.message || 'Something bad happened' })
@@ -143,7 +144,7 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => camelizeKeys(json))
+      .then(json => config.responseDecorator(json))
       .then(
         response => response,
         error => ({ error: error.message || 'Something bad happened' })
@@ -154,7 +155,8 @@ const commonMethods = {
 class Repoint {
   constructor(options = {}) {
     this.config = {
-      host: options.host || ''
+      host: options.host || '',
+      responseDecorator: options.responseDecorator || ((data) => data)
     }
   }
 
@@ -185,7 +187,7 @@ class Repoint {
 
     const nonRestful = nonRestfulRoutes.reduce((result, routeConfig) => {
       const url = `${urls[routeConfig.on]}/${routeConfig.name}`
-      result[routeConfig.name] = commonMethods[routeConfig.method](url)(
+      result[routeConfig.name] = commonMethods[routeConfig.method](this.config)(url)(
         [...nestedNamespacedIdAttributes, (routeConfig.on === 'collection' ? IS_COLLECTION : idAttribute)].reduce((a, b) => a.concat(b), [])
       )
       return result
