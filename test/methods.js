@@ -242,10 +242,10 @@ test('nonRestful login', t => {
         })
 })
 
-test('responseDecorator', t => {
+test('beforeSuccess', t => {
   const repoint = new Repoint({
     host: 'http://api.example.com/v1',
-    responseDecorator: (data) => R.merge(data, { decorated: true })
+    beforeSuccess: (data) => R.merge(data, { decorated: true })
   })
 
   const users = repoint.generate('users')

@@ -36,10 +36,10 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => config.responseDecorator(json))
+      .then(json => json)
       .then(
-        response => response,
-        error => ({ error: error.message || 'Something bad happened' })
+        response => config.beforeSuccess(response),
+        error => config.beforeError(error)
       )
   }),
 
@@ -73,10 +73,10 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => config.responseDecorator(json))
+      .then(json => json)
       .then(
-        response => response,
-        error => ({ error: error.message || 'Something bad happened' })
+        response => config.beforeSuccess(response),
+        error => config.beforeError(error)
       )
   }),
 
@@ -110,10 +110,10 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => config.responseDecorator(json))
+      .then(json => json)
       .then(
-        response => response,
-        error => ({ error: error.message || 'Something bad happened' })
+        response => config.beforeSuccess(response),
+        error => config.beforeError(error)
       )
   }),
 
@@ -143,10 +143,10 @@ const commonMethods = {
       }, headers)
     })
       .then(response => response.json())
-      .then(json => config.responseDecorator(json))
+      .then(json => json)
       .then(
-        response => response,
-        error => ({ error: error.message || 'Something bad happened' })
+        response => config.beforeSuccess(response),
+        error => config.beforeError(error)
       )
   })
 }
@@ -155,7 +155,7 @@ class Repoint {
   constructor(options = {}) {
     this.config = {
       host: options.host || '',
-      responseDecorator: options.responseDecorator || ((data) => data)
+      beforeSuccess: options.beforeSuccess || ((data) => data)
     }
   }
 
