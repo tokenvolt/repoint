@@ -1,9 +1,13 @@
 {
   "name": "repoint",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Endpoint generator based on fetch",
   "main": "src/index.js",
-  "keywords": ["fetch", "rest-api", "http"],
+  "keywords": [
+    "fetch",
+    "rest-api",
+    "http"
+  ],
   "scripts": {
     "test": "babel-node test/index.js | tap-spec",
     "dev": "webpack --config webpack.development.config.js --colors --progress --inline --watch",
