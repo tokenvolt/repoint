@@ -1,7 +1,7 @@
 # repoint
 
 ## What is this and why do I need it?
-A small library with for generating functions to make requests to the backend REST APIs for your client applications. Imagine you have an REST API written by backend team which has a lof of endpoints. You could go ahead and write ad-hoc ajax requests in "jquery" style:
+A small library for generating functions to make requests to the backend REST APIs for your client applications. Imagine you have an REST API written by backend team which has a lof of endpoints. You could go ahead and write ad-hoc ajax requests in "jquery" style:
 
 ```js
 $.ajax("/users")
@@ -15,8 +15,8 @@ $.ajax("/users")
 
 It will work, but there are a couple of problems here:
 
-1. *URL hardcoding.* What if you want to use the same request, but with different "success logic" in another place of your app? You would need to copy-paste it. And what if URL in backend API is changed, - you would need to go a replace the URL everywhere where you copy-pasted it.
-2. *It is not composable.* You have pieces of logic scattered in the codebase. It would be better to have them in one place in some modular, so you can have a client library for your REST API.
+1. *URL hardcoding.* What if you want to use the same request, but with different "success logic" in another place of your app? You would need to copy-paste it. And what if URL in backend API is changed, - you would need to go and replace the URL everywhere where you copy-pasted it.
+2. *It is not composable.* You have pieces of logic scattered all across the codebase. It would be better to have them in one place in some modular way, so you can have a client library for your REST API.
 3. *Boilerplate.* Even if you move them into separate modules/functions you would still have to write a lof of boilerplate code, which is exhausting and error-prone.
 
 This library aims to solve above problems.
