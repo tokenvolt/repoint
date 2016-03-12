@@ -7,7 +7,9 @@ config.displayErrorDetails = true;
 
 config.output = {
   path: "./dist",
-  filename: "repoint.js"
+  filename: "repoint.js",
+  library: 'Repoint',
+  libraryTarget: 'umd'
 };
 
 config.module.loaders.push(

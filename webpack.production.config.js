@@ -1,11 +1,12 @@
 var config       = require("./webpack.base.config");
 var webpack      = require("webpack");
 var path         = require("path");
-var CleanWebpackPlugin = require('clean-webpack-plugin');
 
 config.output = {
   path: "./dist",
-  filename: "repoint.js"
+  filename: "repoint.min.js",
+  library: 'Repoint',
+  libraryTarget: 'umd'
 };
 
 config.module.loaders.push(
@@ -14,11 +15,6 @@ config.module.loaders.push(
 );
 
 config.plugins.push(
-  new CleanWebpackPlugin(['dist'], {
-    root: path.resolve(__dirname),
-    verbose: true,
-    dry: false
-  }),
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.optimize.UglifyJsPlugin({
     sourceMap: false, // Babel 6 throws error on source-map generation ( see https://github.com/babel/babel/issues/2864 )
