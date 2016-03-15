@@ -41,6 +41,24 @@ test('getCollection request with query params', t => {
         })
 })
 
+test('getCollection request with complex query params', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { users: [{ id: 1, first_name: 'Alex' }, { id: 2, first_name: 'Bob' }] }
+
+  const interceptor = nock('http://api.example.com/v1')
+    .get('/users?firstName=Bob&last_name=Lang&skills%5B%5D=Drumming&skills%5B%5D=Double+Bass')
+    .reply(200, mockedResponse)
+
+  const actualResponse = { users: [ { first_name: 'Alex', id: 1 }, { id: 2, first_name: 'Bob' } ] }
+
+  users.getCollection({ firstName: 'Bob', last_name: 'Lang', skills: ['Drumming', 'Double Bass'] })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
 test('nested getCollection request', t => {
   const users = repoint.generate('users', { nestUnder: repoint.generate('rooms') })
   const mockedResponse = { users: [{ id: 1, first_name: 'Alex' }, { id: 2, first_name: 'Bob' }] }
@@ -242,6 +260,81 @@ test('nonRestful login', t => {
         })
 })
 
+test('paramsTransform GET', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    paramsTransform: (data) => R.merge(data, { decorated: true })
+  })
+
+  const users = repoint.generate('users')
+  const mockedResponse = { users: [{ id: 1, first_name: 'Alex' }, { id: 2, first_name: 'Bob' }] }
+
+  const interceptor = nock('http://api.example.com/v1')
+    .get('/users?firstName=Bob&lastName=Lang&decorated=true')
+    .reply(200, mockedResponse)
+
+  const actualResponse = { users: [ { first_name: 'Alex', id: 1 }, { id: 2, first_name: 'Bob' } ] }
+
+  users.getCollection({ firstName: 'Bob', lastName: 'Lang' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
+test('paramsTransform POST', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    paramsTransform: (data) => R.merge(data, { decorated: true })
+  })
+
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1, first_name: 'Alex' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .post('/users', {
+                          email: 'example@gmail.com',
+                          decorated: true
+                        })
+                        .reply(201, mockedResponse)
+
+  const actualResponse = { id: 1, first_name: 'Alex' }
+
+  users.create({ email: 'example@gmail.com' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
+test('paramsTransform PATCH', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    paramsTransform: (data) => R.merge(data, { decorated: true })
+  })
+
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1, first_name: 'Alex' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/users/1', {
+                          email: 'example@gmail.com',
+                          decorated: true
+                        })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1, first_name: 'Alex' }
+
+  users.update({ id: 1, email: 'example@gmail.com' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
 test('beforeSuccess', t => {
   const repoint = new Repoint({
     host: 'http://api.example.com/v1',
@@ -264,3 +357,21 @@ test('beforeSuccess', t => {
           t.end()
         })
 })
+
+// test('beforeError', t => {
+//   const repoint = new Repoint({
+//     host: 'http://api.example.com/v1',
+//     beforeError: (data) => data
+//   })
+
+//   const users = repoint.generate('users')
+
+//   const interceptor = nock('http://api.example.com/v1')
+//     .get('/users')
+//     .replyWithError('Not Authorized')
+
+//   const actualResponse = { error: 'Not Authorized', decorated: true }
+
+//   t.throws(users.getCollection.bind(null, {}), /Not Authorized/, 'throws error')
+//   t.end()
+// })

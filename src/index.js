@@ -2,7 +2,7 @@ import fetch from 'isomorphic-fetch'
 import R from './ramda/ramda.repoint'
 import param from 'jquery-param'
 import pluralize from 'pluralize'
-import { capitalize, missingParams, urlParamsTransformer } from './helpers'
+import { capitalize, missingParams, urlParamsTransformer, identity } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
 const commonMethods = {
@@ -28,7 +28,7 @@ const commonMethods = {
       queryParams = R.omit(idAttributes, params)
     }
 
-    const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(queryParams)}`
+    const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(config.paramsTransform(queryParams))}`
 
     return fetch(fullUrl, {
       headers: R.merge({
@@ -67,7 +67,7 @@ const commonMethods = {
 
     return fetch(`${config.host}${buildedUrl}`, {
       method:  'POST',
-      body:    JSON.stringify(bodyParams),
+      body:    JSON.stringify(config.paramsTransform(bodyParams)),
       headers: R.merge({
         'Content-Type': 'application/json'
       }, headers)
@@ -104,7 +104,7 @@ const commonMethods = {
 
     return fetch(`${config.host}${buildedUrl}`, {
       method:  'PATCH',
-      body:    JSON.stringify(bodyParams),
+      body:    JSON.stringify(config.paramsTransform(bodyParams)),
       headers: R.merge({
         'Content-Type': 'application/json'
       }, headers)
@@ -155,7 +155,9 @@ class Repoint {
   constructor(options = {}) {
     this.config = {
       host: options.host || '',
-      beforeSuccess: options.beforeSuccess || ((data) => data)
+      paramsTransform: options.paramsTransform || identity,
+      beforeSuccess: options.beforeSuccess || identity,
+      beforeError: options.beforeError || identity
     }
   }
 

@@ -15,3 +15,5 @@ export const urlParamsTransformer = (url, params) => {
             .map((token) => pattern.test(token) ? token.replace(pattern, params[removeFirstChar(token)]) : token)
             .join('/')
 }
+
+export const identity = (val) => val

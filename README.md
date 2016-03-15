@@ -123,18 +123,20 @@ usersAPI.login({ /* params */ })
 
 ## Response decorators
 
-When creating a Repoint instance, there is an additional config to transform the response for all the generated endpoints. By default, it returns what comes from the server as it is, but you can provide your own. I like to use [humps](https://github.com/domchristie/humps) to convert all of the object keys to camelCase. You can do whatever you want, the only requirement is that it should be a function.
+When creating a Repoint instance, there is an additional config to transform the response for all the generated endpoints. By default, it returns what comes from the server as it is, but you can provide your own. I like to use [humps](https://github.com/domchristie/humps) to convert all of the object keys to camelCase or vice versa. You can do whatever you want, the only requirement is that it should be a function.
 
 ```js
 import Repoint from 'repoint'
-import { camelizeKeys } from 'humps'
+import { camelizeKeys, decamelizeKeys } from 'humps'
 
 const repoint = new Repoint({
   host: 'http://api.example.com/v1',
+  // convert query params or body params keys (in case of POST/PATCH/PUT requests) to underscore-separated
+  paramsTransform: (data) => decamelizeKeys(data),
   beforeSuccess: (data) => camelizeKeys(data),
   /* beforeError: same but for error */
 })
 const usersAPI = repoint.generate('users')
-usersAPI.get({ id: 1 })
+usersAPI.get({ id: 1, firstName: 'Bob' /* will be converted to { id: 1, first_name: 'Bob' } */ })
         .then((data) => /* data will have all of its object keys converted to camelCase */)
 ```
