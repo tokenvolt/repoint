@@ -121,6 +121,26 @@ const usersAPI = repoint.generate('users', {}, [{ method: 'post', name: 'login',
 usersAPI.login({ /* params */ })
 ```
 
+## Singular endpoints
+
+Those are URLs with no collectionURL and with no idAttributes (similar to Rails `resource` method in routes.rb)
+
+You can define them in the following way:
+
+```js
+import Repoint from 'repoint'
+
+const repoint = new Repoint({ host: 'http://api.example.com/v1' })
+const userAPI = repoint.generate('user', { singular: true })
+
+// makes GET request to http://api.example.com/v1/user
+userAPI.get({}) // no `id` to get the user
+```
+
+This will generate only `get`, `create`, `update` and `destroy` functions omitting `getCollection`. Also no idAttributes are necessary.
+
+Notice that you are providing a 'singular' name, (of course you can provide any name, pluralization/singularization simply is not applied in this case).
+
 ## Response decorators
 
 When creating a Repoint instance, there is an additional config to transform the response for all the generated endpoints. By default, it returns what comes from the server as it is, but you can provide your own. I like to use [humps](https://github.com/domchristie/humps) to convert all of the object keys to camelCase or vice versa. You can do whatever you want, the only requirement is that it should be a function.

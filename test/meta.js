@@ -87,3 +87,21 @@ test('nonRestful methods', t => {
   t.equal(typeof users.login, 'function', 'login function exists')
   t.end()
 })
+
+test('singular endpoint("user")', t => {
+  const users = repoint.generate('user', { singular: true })
+
+  t.equal(users.name, 'user', 'name property == "user"')
+  t.equal(users.collectionUrl, null, 'no collectionUrl')
+  t.equal(users.memberUrl, '/user', 'memberUrl == "/user"')
+  t.deepEqual(users.idAttributes, [], 'no idAttributes')
+  t.deepEqual(users.namespacedIdAttributes, [], 'no namespacedIdAttributes')
+
+  t.equal(typeof users.getCollection, 'undefined', 'no getCollection function')
+  t.equal(typeof users.get, 'function', 'get function exists')
+  t.equal(typeof users.create, 'function', 'create function exists')
+  t.equal(typeof users.update, 'function', 'update function exists')
+  t.equal(typeof users.destroy, 'function', 'destroy function exists')
+
+  t.end()
+})

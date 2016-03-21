@@ -19,6 +19,7 @@ test('missingParams', t => {
 })
 
 test('urlParamsTransformer', t => {
+  t.equal(urlParamsTransformer('/user', {}), '/user', 'matches url params according to pattern')
   t.equal(urlParamsTransformer('/users/:id', { id: 1 }), '/users/1', 'matches url params according to pattern')
   t.equal(urlParamsTransformer('users/:id/posts/:title', { id: 1, title: 'book' }), 'users/1/posts/book', 'matches url params according to pattern')
   t.equal(urlParamsTransformer('/admin/users/:id/posts/:title', { id: 1, title: 'book' }), '/admin/users/1/posts/book', 'matches url params according to pattern')

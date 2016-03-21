@@ -260,6 +260,177 @@ test('nonRestful login', t => {
         })
 })
 
+test('singular get request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .get('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.get({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('namespaced singular get request', t => {
+  const user = repoint.generate('user', { singular: true, namespace: 'admin' })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .get('/admin/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.get({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('singular create request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .post('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.create({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('singular update request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.update({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('singular destroy request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.destroy({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('nested singular get request', t => {
+  const user = repoint.generate('user', { singular: true, nestUnder: repoint.generate('comments') })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .get('/comments/1/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.get({ commentId: 1 })
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+
+test('namespaced nested singular get request', t => {
+  const user = repoint.generate('user', { singular: true, namespace: 'admin', nestUnder: repoint.generate('comments') })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .get('/comments/1/admin/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.get({ commentId: 1 })
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('nested singular create request', t => {
+  const user = repoint.generate('user', { singular: true, nestUnder: repoint.generate('comments') })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .post('/comments/1/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.create({ commentId: 1 })
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('nested singular update request', t => {
+  const user = repoint.generate('user', { singular: true, nestUnder: repoint.generate('comments') })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/comments/1/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.update({ commentId: 1 })
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('nested singular destroy request', t => {
+  const user = repoint.generate('user', { singular: true, nestUnder: repoint.generate('comments') })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/comments/1/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.destroy({ commentId: 1 })
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
 test('paramsTransform GET', t => {
   const repoint = new Repoint({
     host: 'http://api.example.com/v1',
