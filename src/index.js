@@ -188,7 +188,7 @@ class Repoint {
       }
 
       collectionUrl = urls.collection
-      memberUrl     = urls.member
+      memberUrl = urls.member
       const namespacedIdAttribute = `${pluralize(name, 1)}${capitalize(idAttribute)}`
 
       const nonRestful = nonRestfulRoutes.reduce((result, routeConfig) => {
@@ -215,34 +215,34 @@ class Repoint {
         update:  commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
         destroy: commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute])
       })(nonRestful)
-    } else {
-      if (nestedEndpoint !== undefined && nestedEndpoint !== null) {
-        urls = {
-          collection: null,
-          member:     `${nestedEndpoint.collectionUrl}/:${nestedNamespacedIdAttributes[0]}/${namespacedName}`
-        }
-      } else {
-        urls = {
-          collection: null,
-          member:     `/${namespacedName}`
-        }
-      }
-
-      collectionUrl = urls.collection
-      memberUrl     = urls.member
-
-      return R.merge({
-        name,
-        collectionUrl,
-        memberUrl,
-        idAttributes:           [...nestedIdAttributes],
-        namespacedIdAttributes: [...nestedNamespacedIdAttributes],
-        get:    commonMethods.get(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
-        create: commonMethods.post(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
-        update:  commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
-        destroy: commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes])
-      })({})
     }
+
+    if (nestedEndpoint !== undefined && nestedEndpoint !== null) {
+      urls = {
+        collection: null,
+        member:     `${nestedEndpoint.collectionUrl}/:${nestedNamespacedIdAttributes[0]}/${namespacedName}`
+      }
+    } else {
+      urls = {
+        collection: null,
+        member:     `/${namespacedName}`
+      }
+    }
+
+    collectionUrl = urls.collection
+    memberUrl = urls.member
+
+    return R.merge({
+      name,
+      collectionUrl,
+      memberUrl,
+      idAttributes:           [...nestedIdAttributes],
+      namespacedIdAttributes: [...nestedNamespacedIdAttributes],
+      get:    commonMethods.get(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      create: commonMethods.post(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      update:  commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      destroy: commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes])
+    })({})
   }
 }
 
