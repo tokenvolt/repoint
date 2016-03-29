@@ -51,12 +51,21 @@ usersAPI.getCollection({ some: 1 })
 usersAPI.get({ id: 1 })
 
 // makes POST request to http://api.example.com/v1/users with body { email: 'email@example.com' } and ContentType: application/json
+usersAPI.post({ email: 'email@example.com' })
+// OR
 usersAPI.create({ email: 'email@example.com' })
 
 // makes PUT request to http://api.example.com/v1/users/1 with body { email: 'updated-email@example.com' } and ContentType: application/json
+usersAPI.put({ id: 1, user: { email: 'updated-email@example.com' }})
+
+// makes PATCH request to http://api.example.com/v1/users/1 with body { email: 'updated-email@example.com' } and ContentType: application/json
+usersAPI.patch({ id: 1, user: { email: 'updated-email@example.com' }})
+// OR
 usersAPI.update({ id: 1, user: { email: 'updated-email@example.com' }})
 
 // makes DELETE request to http://api.example.com/v1/users/1
+usersAPI.delete({ id: 1 })
+// OR
 usersAPI.destroy({ id: 1 })
 ```
 
@@ -137,7 +146,7 @@ const userAPI = repoint.generate('user', { singular: true })
 userAPI.get({}) // no `id` to get the user
 ```
 
-This will generate only `get`, `create`, `update` and `destroy` functions omitting `getCollection`. Also no idAttributes are necessary.
+This will generate all the functions omitting `getCollection`. Also no idAttributes are necessary.
 
 Notice that you are providing a 'singular' name, (of course you can provide any name, pluralization/singularization simply is not applied in this case).
 

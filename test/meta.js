@@ -19,8 +19,12 @@ test('endpoint("users")', t => {
 
   t.equal(typeof users.getCollection, 'function', 'getCollection function exists')
   t.equal(typeof users.get, 'function', 'get function exists')
+  t.equal(typeof users.post, 'function', 'post function exists')
   t.equal(typeof users.create, 'function', 'create function exists')
+  t.equal(typeof users.put, 'function', 'put function exists')
+  t.equal(typeof users.patch, 'function', 'patch function exists')
   t.equal(typeof users.update, 'function', 'update function exists')
+  t.equal(typeof users.delete, 'function', 'delete function exists')
   t.equal(typeof users.destroy, 'function', 'destroy function exists')
 
   t.end()
@@ -99,8 +103,12 @@ test('singular endpoint("user")', t => {
 
   t.equal(typeof users.getCollection, 'undefined', 'no getCollection function')
   t.equal(typeof users.get, 'function', 'get function exists')
+  t.equal(typeof users.post, 'function', 'post function exists')
   t.equal(typeof users.create, 'function', 'create function exists')
+  t.equal(typeof users.put, 'function', 'put function exists')
+  t.equal(typeof users.patch, 'function', 'patch function exists')
   t.equal(typeof users.update, 'function', 'update function exists')
+  t.equal(typeof users.delete, 'function', 'delete function exists')
   t.equal(typeof users.destroy, 'function', 'destroy function exists')
 
   t.end()

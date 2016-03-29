@@ -5,6 +5,43 @@ import pluralize from 'pluralize'
 import { capitalize, missingParams, urlParamsTransformer, identity } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
+// :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
+const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}) => {
+  const idAttributeObject = R.pick(idAttributes, params)
+  const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
+  const lastIdAttribute = idAttributes[0]
+  let bodyParams
+  let buildedUrl
+
+  if (missingIdAttibutes.length !== 0) {
+    throw new Error(`You must provide "${missingIdAttibutes}" in params`)
+  }
+
+  if (idAttributes.length === 1 && lastIdAttribute === IS_COLLECTION) {
+    bodyParams = params
+    buildedUrl = url
+  }
+
+  if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
+    bodyParams = R.omit(idAttributes, params)
+    buildedUrl = urlParamsTransformer(url, idAttributeObject)
+  }
+
+  return fetch(`${config.host}${buildedUrl}`, {
+    method:  methodName,
+    body:    JSON.stringify(config.paramsTransform(bodyParams)),
+    headers: R.merge({
+      'Content-Type': 'application/json'
+    }, headers)
+  })
+    .then(response => response.json())
+    .then(json => json)
+    .then(
+      response => config.beforeSuccess(response),
+      error => config.beforeError(error)
+    )
+})
+
 const commonMethods = {
   // :: (k: v) -> String -> [String] -> (k: v) -> (k: v) -> (a -> b)
   get: R.curry((config, url, idAttributes, params, headers = {}) => {
@@ -80,42 +117,8 @@ const commonMethods = {
       )
   }),
 
-  // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-  patch: R.curry((config, url, idAttributes, params, headers = {}) => {
-    const idAttributeObject = R.pick(idAttributes, params)
-    const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
-    const lastIdAttribute = idAttributes[0]
-    let bodyParams
-    let buildedUrl
-
-    if (missingIdAttibutes.length !== 0) {
-      throw new Error(`You must provide "${missingIdAttibutes}" in params`)
-    }
-
-    if (idAttributes.length === 1 && lastIdAttribute === IS_COLLECTION) {
-      bodyParams = params
-      buildedUrl = url
-    }
-
-    if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
-      bodyParams = R.omit(idAttributes, params)
-      buildedUrl = urlParamsTransformer(url, idAttributeObject)
-    }
-
-    return fetch(`${config.host}${buildedUrl}`, {
-      method:  'PATCH',
-      body:    JSON.stringify(config.paramsTransform(bodyParams)),
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
-    })
-      .then(response => response.json())
-      .then(json => json)
-      .then(
-        response => config.beforeSuccess(response),
-        error => config.beforeError(error)
-      )
-  }),
+  put: modifyWith('PUT'),
+  patch: modifyWith('PATCH'),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
   delete: R.curry((config, url, idAttributes, params, headers = {}) => {
@@ -209,10 +212,16 @@ class Repoint {
                                   [...nestedNamespacedIdAttributes, IS_COLLECTION]
                                 ),
         get:    commonMethods.get(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
+        post:   commonMethods.post(this.config)(collectionUrl)(
+                  [...nestedNamespacedIdAttributes, IS_COLLECTION]
+                ),
         create: commonMethods.post(this.config)(collectionUrl)(
                   [...nestedNamespacedIdAttributes, IS_COLLECTION]
                 ),
+        put:     commonMethods.put(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
+        patch:   commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
         update:  commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
+        delete:  commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute]),
         destroy: commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes, idAttribute])
       })(nonRestful)
     }
@@ -238,9 +247,13 @@ class Repoint {
       memberUrl,
       idAttributes:           [...nestedIdAttributes],
       namespacedIdAttributes: [...nestedNamespacedIdAttributes],
-      get:    commonMethods.get(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
-      create: commonMethods.post(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      get:     commonMethods.get(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      post:    commonMethods.post(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      create:  commonMethods.post(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      put:     commonMethods.put(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      patch:   commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
       update:  commonMethods.patch(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
+      delete:  commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes]),
       destroy: commonMethods.delete(this.config)(memberUrl)([...nestedNamespacedIdAttributes])
     })({})
   }

@@ -77,7 +77,26 @@ test('nested getCollection request', t => {
         })
 })
 
-test('create', t => {
+test('POST', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1, first_name: 'Alex' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .post('/users', {
+                          email: 'example@gmail.com'
+                        })
+                        .reply(201, mockedResponse)
+
+  const actualResponse = { id: 1, first_name: 'Alex' }
+
+  users.post({ email: 'example@gmail.com' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
+test('POST create', t => {
   const users = repoint.generate('users')
   const mockedResponse = { id: 1, first_name: 'Alex' }
 
@@ -167,6 +186,44 @@ test('get with idAttribute', t => {
 
 test.skip('get error', t => {})
 
+test('PUT update', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1, first_name: 'Alex' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .put('/users/1', {
+                          email: 'example@gmail.com'
+                        })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1, first_name: 'Alex' }
+
+  users.put({ id: 1, email: 'example@gmail.com' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
+test('PATCH update', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1, first_name: 'Alex' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/users/1', {
+                          email: 'example@gmail.com'
+                        })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1, first_name: 'Alex' }
+
+  users.patch({ id: 1, email: 'example@gmail.com' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
 test('update', t => {
   const users = repoint.generate('users')
   const mockedResponse = { id: 1, first_name: 'Alex' }
@@ -206,6 +263,23 @@ test('nested update request', t => {
 })
 
 test.skip('update error', t => {})
+
+test('DELETE', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1 }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/users/1')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1 }
+
+  users.delete({ id: 1 })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
 
 test('destroy', t => {
   const users = repoint.generate('users')
@@ -260,6 +334,23 @@ test('nonRestful login', t => {
         })
 })
 
+test('nonRestful PUT cancel', t => {
+  const users = repoint.generate('users', {}, [{ method: 'patch', name: 'cancel', on: 'collection' }])
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/users/cancel', { email: 'example@gmail.com', password: '123' })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  users.cancel({ email: 'example@gmail.com', password: '123' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
 test('singular get request', t => {
   const user = repoint.generate('user', { singular: true })
   const mockedResponse = { token: '321' }
@@ -294,6 +385,23 @@ test('namespaced singular get request', t => {
        })
 })
 
+test('singular POST request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .post('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.post({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
 test('singular create request', t => {
   const user = repoint.generate('user', { singular: true })
   const mockedResponse = { token: '321' }
@@ -311,6 +419,40 @@ test('singular create request', t => {
        })
 })
 
+test('singular PUT request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .put('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.put({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('singular PATCH request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .patch('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.patch({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
 test('singular update request', t => {
   const user = repoint.generate('user', { singular: true })
   const mockedResponse = { token: '321' }
@@ -322,6 +464,23 @@ test('singular update request', t => {
   const actualResponse = { token: '321' }
 
   user.update({})
+      .then((data) => {
+         t.deepEqual(data, actualResponse)
+         t.end()
+       })
+})
+
+test('singular DELETE request', t => {
+  const user = repoint.generate('user', { singular: true })
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/user')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  user.delete({})
       .then((data) => {
          t.deepEqual(data, actualResponse)
          t.end()
