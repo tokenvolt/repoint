@@ -34,12 +34,10 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
       'Content-Type': 'application/json'
     }, headers)
   })
+    .then(config.beforeError)
     .then(response => response.json())
     .then(json => json)
-    .then(
-      response => config.beforeSuccess(response),
-      error => config.beforeError(error)
-    )
+    .then(response => config.beforeSuccess(response))
 })
 
 const commonMethods = {
@@ -72,12 +70,10 @@ const commonMethods = {
         'Content-Type': 'application/json'
       }, headers)
     })
+      .then(config.beforeError)
       .then(response => response.json())
       .then(json => json)
-      .then(
-        response => config.beforeSuccess(response),
-        error => config.beforeError(error)
-      )
+      .then(response => config.beforeSuccess(response))
   }),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
@@ -109,12 +105,10 @@ const commonMethods = {
         'Content-Type': 'application/json'
       }, headers)
     })
+      .then(config.beforeError)
       .then(response => response.json())
       .then(json => json)
-      .then(
-        response => config.beforeSuccess(response),
-        error => config.beforeError(error)
-      )
+      .then(response => config.beforeSuccess(response))
   }),
 
   put: modifyWith('PUT'),
@@ -145,12 +139,10 @@ const commonMethods = {
         'Content-Type': 'application/json'
       }, headers)
     })
+      .then(config.beforeError)
       .then(response => response.json())
       .then(json => json)
-      .then(
-        response => config.beforeSuccess(response),
-        error => config.beforeError(error)
-      )
+      .then(response => config.beforeSuccess(response))
   })
 }
 

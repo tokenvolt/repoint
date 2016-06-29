@@ -4,6 +4,16 @@ import R from '../src/ramda/ramda.repoint.js'
 import Repoint from '../src'
 
 const repoint = new Repoint({ host: 'http://api.example.com/v1' })
+const errorHandler = (response) => {
+  if (response.status >= 200 && response.status < 300) {
+    return response
+  }
+
+  const error = new Error(response.statusText)
+  error.response = response
+  throw error
+}
+
 
 test('getCollection request', t => {
   const users = repoint.generate('users')
@@ -321,13 +331,38 @@ test('nonRestful login', t => {
   const users = repoint.generate('users', {}, [{ method: 'post', name: 'login', on: 'collection' }])
   const mockedResponse = { token: '321' }
 
-  const interceptor = nock('http://api.example.com/v1')
+  const interceptor = nock('http://api.example.com/v1', {
+                          reqheaders: {
+                            'header1': 'some header'
+                          }
+                        })
                         .post('/users/login', { email: 'example@gmail.com', password: '123' })
                         .reply(200, mockedResponse)
 
   const actualResponse = { token: '321' }
 
-  users.login({ email: 'example@gmail.com', password: '123' })
+  users.login({ email: 'example@gmail.com', password: '123' }, { header1: 'some header' })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
+test('nonRestful bulk_destroy', t => {
+  const users = repoint.generate('users', {}, [{ method: 'delete', name: 'bulk_destroy', on: 'collection' }])
+  const mockedResponse = { token: '321' }
+
+  const interceptor = nock('http://api.example.com/v1', {
+                          reqheaders: {
+                            'header1': 'some header'
+                          }
+                        })
+                        .delete('/users/bulk_destroy')
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { token: '321' }
+
+  users.bulk_destroy({}, { header1: 'some header' })
        .then((data) => {
           t.deepEqual(data, actualResponse)
           t.end()
@@ -688,20 +723,78 @@ test('beforeSuccess', t => {
         })
 })
 
-// test('beforeError', t => {
-//   const repoint = new Repoint({
-//     host: 'http://api.example.com/v1',
-//     beforeError: (data) => data
-//   })
+test('GET error', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    beforeError: errorHandler
+  })
 
-//   const users = repoint.generate('users')
+  const users = repoint.generate('users')
 
-//   const interceptor = nock('http://api.example.com/v1')
-//     .get('/users')
-//     .replyWithError('Not Authorized')
+  const interceptor = nock('http://api.example.com/v1')
+    .get('/users')
+    .reply(401)
 
-//   const actualResponse = { error: 'Not Authorized', decorated: true }
+  users.getCollection({})
+       .catch((e) => {
+          t.deepEqual(e.message, "Unauthorized")
+          t.end()
+       })
+})
 
-//   t.throws(users.getCollection.bind(null, {}), /Not Authorized/, 'throws error')
-//   t.end()
-// })
+test('POST error', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    beforeError: errorHandler
+  })
+
+  const users = repoint.generate('users')
+
+  const interceptor = nock('http://api.example.com/v1')
+    .post('/users')
+    .reply(401)
+
+  users.create({})
+       .catch((e) => {
+          t.deepEqual(e.message, "Unauthorized")
+          t.end()
+       })
+})
+
+test('PUT error', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    beforeError: errorHandler
+  })
+
+  const users = repoint.generate('users')
+
+  const interceptor = nock('http://api.example.com/v1')
+    .put('/users/1')
+    .reply(401)
+
+  users.put({ id: 1 })
+       .catch((e) => {
+          t.deepEqual(e.message, "Unauthorized")
+          t.end()
+       })
+})
+
+test('PATCH error', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    beforeError: errorHandler
+  })
+
+  const users = repoint.generate('users')
+
+  const interceptor = nock('http://api.example.com/v1')
+    .patch('/users/1')
+    .reply(401)
+
+  users.patch({ id: 1 })
+       .catch((e) => {
+          t.deepEqual(e.message, "Unauthorized")
+          t.end()
+       })
+})
