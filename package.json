@@ -45,7 +45,7 @@
     "webpack-bundle-size-analyzer": "^2.0.1"
   },
   "dependencies": {
-    "isomorphic-fetch": "^2.2.1",
+    "isomorphic-fetch": "git+https://git@github.com:jou/isomorphic-fetch.git#react-native",
     "jquery-param": "^0.2.0",
     "pluralize": "^1.2.1"
   }
