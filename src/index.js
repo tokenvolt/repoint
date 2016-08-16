@@ -2,16 +2,23 @@ import fetch from 'isomorphic-fetch'
 import R from './ramda/ramda.repoint'
 import param from 'jquery-param'
 import pluralize from 'pluralize'
-import { capitalize, missingParams, urlParamsTransformer, identity } from './helpers'
+import {
+  capitalize,
+  missingParams,
+  urlParamsTransformer,
+  identity,
+  objectToFormData
+} from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
 // :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}) => {
+const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
   const idAttributeObject = R.pick(idAttributes, params)
   const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
   const lastIdAttribute = idAttributes[0]
   let bodyParams
   let buildedUrl
+  let data
 
   if (missingIdAttibutes.length !== 0) {
     throw new Error(`You must provide "${missingIdAttibutes}" in params`)
@@ -27,9 +34,15 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
     buildedUrl = urlParamsTransformer(url, idAttributeObject)
   }
 
+  if (type === 'form') {
+    data = objectToFormData(paramsTransform(bodyParams))
+  } else {
+    data = JSON.stringify(config.paramsTransform(bodyParams))
+  }
+
   return fetch(`${config.host}${buildedUrl}`, {
     method:  methodName,
-    body:    JSON.stringify(config.paramsTransform(bodyParams)),
+    body:    data,
     headers: R.merge({
       'Content-Type': 'application/json'
     }, headers)
@@ -42,7 +55,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
 
 const commonMethods = {
   // :: (k: v) -> String -> [String] -> (k: v) -> (k: v) -> (a -> b)
-  get: R.curry((config, url, idAttributes, params, headers = {}) => {
+  get: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
@@ -77,12 +90,13 @@ const commonMethods = {
   }),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-  post: R.curry((config, url, idAttributes, params, headers = {}) => {
+  post: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
     let bodyParams
     let buildedUrl
+    let data
 
     if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
@@ -98,9 +112,15 @@ const commonMethods = {
       buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
 
+    if (type === 'form') {
+      data = objectToFormData(paramsTransform(bodyParams))
+    } else {
+      data = JSON.stringify(config.paramsTransform(bodyParams))
+    }
+
     return fetch(`${config.host}${buildedUrl}`, {
       method:  'POST',
-      body:    JSON.stringify(config.paramsTransform(bodyParams)),
+      body:    data,
       headers: R.merge({
         'Content-Type': 'application/json'
       }, headers)
@@ -115,7 +135,7 @@ const commonMethods = {
   patch: modifyWith('PATCH'),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-  delete: R.curry((config, url, idAttributes, params, headers = {}) => {
+  delete: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
