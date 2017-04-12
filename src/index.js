@@ -11,6 +11,14 @@ import {
 } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
+const defaultHeaders = (type) => {
+  if (type === 'json') {
+    return { 'Content-Type': 'application/json' }
+  }
+
+  return {}
+}
+
 // :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
 const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
   const idAttributeObject = R.pick(idAttributes, params)
@@ -35,7 +43,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
   }
 
   if (type === 'form') {
-    data = objectToFormData(paramsTransform(bodyParams))
+    data = objectToFormData(config.paramsTransform(bodyParams))
   } else {
     data = JSON.stringify(config.paramsTransform(bodyParams))
   }
@@ -43,9 +51,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
   return fetch(`${config.host}${buildedUrl}`, {
     method:  methodName,
     body:    data,
-    headers: R.merge({
-      'Content-Type': 'application/json'
-    }, headers)
+    headers: R.merge(defaultHeaders(type), headers)
   })
     .then(config.beforeError)
     .then(response => response.json())
@@ -79,9 +85,7 @@ const commonMethods = {
     const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(config.paramsTransform(queryParams))}`
 
     return fetch(fullUrl, {
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
       .then(response => response.json())
@@ -113,7 +117,7 @@ const commonMethods = {
     }
 
     if (type === 'form') {
-      data = objectToFormData(paramsTransform(bodyParams))
+      data = objectToFormData(config.paramsTransform(bodyParams))
     } else {
       data = JSON.stringify(config.paramsTransform(bodyParams))
     }
@@ -121,9 +125,7 @@ const commonMethods = {
     return fetch(`${config.host}${buildedUrl}`, {
       method:  'POST',
       body:    data,
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
       .then(response => response.json())
@@ -155,9 +157,7 @@ const commonMethods = {
 
     return fetch(`${config.host}${buildedUrl}`, {
       method:  'DELETE',
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
       .then(response => response.json())
