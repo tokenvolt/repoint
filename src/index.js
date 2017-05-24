@@ -19,6 +19,8 @@ const defaultHeaders = (type) => {
   return {}
 }
 
+const defaultFetchOpts = {}
+
 // :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
 const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
   const idAttributeObject = R.pick(idAttributes, params)
@@ -49,6 +51,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
   }
 
   return fetch(`${config.host}${buildedUrl}`, {
+    ...config.fetchOpts,
     method:  methodName,
     body:    data,
     headers: R.merge(defaultHeaders(type), headers)
@@ -85,6 +88,7 @@ const commonMethods = {
     const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(config.paramsTransform(queryParams))}`
 
     return fetch(fullUrl, {
+      ...config.fetchOpts,
       headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
@@ -123,6 +127,7 @@ const commonMethods = {
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
+      ...config.fetchOpts,
       method:  'POST',
       body:    data,
       headers: R.merge(defaultHeaders(type), headers)
@@ -156,6 +161,7 @@ const commonMethods = {
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
+      ...config.fetchOpts,
       method:  'DELETE',
       headers: R.merge(defaultHeaders(type), headers)
     })
@@ -172,7 +178,8 @@ class Repoint {
       host: options.host || '',
       paramsTransform: options.paramsTransform || identity,
       beforeSuccess: options.beforeSuccess || identity,
-      beforeError: options.beforeError || identity
+      beforeError: options.beforeError || identity,
+      fetchOpts: options.fetchOpts || defaultFetchOpts
     }
   }
 

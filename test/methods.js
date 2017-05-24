@@ -723,6 +723,30 @@ test('beforeSuccess', t => {
         })
 })
 
+
+test('send cookies', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    fetchOpts: { credentials: 'include' }
+  })
+
+  const users = repoint.generate('users')
+  const mockedResponse = { users: [{ id: 1, first_name: 'Alex' }, { id: 2, first_name: 'Bob' }] }
+
+  const interceptor = nock('http://api.example.com/v1')
+    .get('/users')
+    .reply(200, mockedResponse)
+
+  const actualResponse = { users: [ { first_name: 'Alex', id: 1 }, { id: 2, first_name: 'Bob' } ] }
+
+  users.getCollection({})
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
 test('GET error', t => {
   const repoint = new Repoint({
     host: 'http://api.example.com/v1',
