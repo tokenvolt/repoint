@@ -164,11 +164,14 @@ const repoint = new Repoint({
   paramsTransform: (data) => decamelizeKeys(data),
   beforeSuccess: (data) => camelizeKeys(data),
   /* beforeError: same but for error */
+  /* responseHandler: response decorator that receives Response promise. Useful for handling 204 statuses */
 })
 const usersAPI = repoint.generate('users')
 usersAPI.get({ id: 1, firstName: 'Bob' /* will be converted to { id: 1, first_name: 'Bob' } */ })
         .then((data) => /* data will have all of its object keys converted to camelCase */)
 ```
+
+
 
 ## Fetch options
 
@@ -183,6 +186,4 @@ const repoint = new Repoint({
   host: 'http://api.example.com/v1',
   fetchOpts: { credentials: 'include' }
 })
-
-...
 ```

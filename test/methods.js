@@ -822,3 +822,31 @@ test('PATCH error', t => {
           t.end()
        })
 })
+
+test('handle 204 status with no content', t => {
+  const responseHandler = function(response) {
+    if (response.status === 204) {
+      return Promise.resolve({})
+    }
+
+   return response.json()
+  }
+
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    responseHandler: responseHandler
+  })
+
+  const users = repoint.generate('users')
+
+  const interceptor = nock('http://api.example.com/v1')
+    .post('/users')
+    .reply(204)
+
+  users.post({ name: "Whatever" })
+       .then((data) => {
+          t.deepEqual(data, {})
+          nock.removeInterceptor(interceptor)
+          t.end()
+       })
+})
