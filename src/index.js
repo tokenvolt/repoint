@@ -21,6 +21,9 @@ const defaultHeaders = (type) => {
 
 const defaultFetchOpts = {}
 
+const jsonResponseHandler = (response) => response.json()
+
+
 // :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
 const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
   const idAttributeObject = R.pick(idAttributes, params)
@@ -57,9 +60,9 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
     headers: R.merge(defaultHeaders(type), headers)
   })
     .then(config.beforeError)
-    .then(response => response.json())
+    .then(jsonResponseHandler)
     .then(json => json)
-    .then(response => config.beforeSuccess(response))
+    .then(config.beforeSuccess)
 })
 
 const commonMethods = {
@@ -92,7 +95,7 @@ const commonMethods = {
       headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(config.responseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   }),
@@ -133,7 +136,7 @@ const commonMethods = {
       headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(jsonResponseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   }),
@@ -166,7 +169,7 @@ const commonMethods = {
       headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(jsonResponseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   })
@@ -179,7 +182,8 @@ class Repoint {
       paramsTransform: options.paramsTransform || identity,
       beforeSuccess: options.beforeSuccess || identity,
       beforeError: options.beforeError || identity,
-      fetchOpts: options.fetchOpts || defaultFetchOpts
+      fetchOpts: options.fetchOpts || defaultFetchOpts,
+      responseHandler: options.responseHandler || jsonResponseHandler
     }
   }
 
