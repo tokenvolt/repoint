@@ -164,8 +164,26 @@ const repoint = new Repoint({
   paramsTransform: (data) => decamelizeKeys(data),
   beforeSuccess: (data) => camelizeKeys(data),
   /* beforeError: same but for error */
+  /* responseHandler: response decorator that receives Response promise. Useful for handling 204 statuses */
 })
 const usersAPI = repoint.generate('users')
 usersAPI.get({ id: 1, firstName: 'Bob' /* will be converted to { id: 1, first_name: 'Bob' } */ })
         .then((data) => /* data will have all of its object keys converted to camelCase */)
+```
+
+
+
+## Fetch options
+
+There is a `fetchOpts` parameter for Repoint constructor which corresponds to init param in [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch).
+
+For example, if you want to send cookies with every request, you must provide `credentials: 'include'` for fetchOpts.
+
+```js
+import Repoint from 'repoint'
+
+const repoint = new Repoint({
+  host: 'http://api.example.com/v1',
+  fetchOpts: { credentials: 'include' }
+})
 ```

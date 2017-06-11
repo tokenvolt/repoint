@@ -723,6 +723,30 @@ test('beforeSuccess', t => {
         })
 })
 
+
+test('send cookies', t => {
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    fetchOpts: { credentials: 'include' }
+  })
+
+  const users = repoint.generate('users')
+  const mockedResponse = { users: [{ id: 1, first_name: 'Alex' }, { id: 2, first_name: 'Bob' }] }
+
+  const interceptor = nock('http://api.example.com/v1')
+    .get('/users')
+    .reply(200, mockedResponse)
+
+  const actualResponse = { users: [ { first_name: 'Alex', id: 1 }, { id: 2, first_name: 'Bob' } ] }
+
+  users.getCollection({})
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          nock.removeInterceptor(interceptor)
+          t.end()
+        })
+})
+
 test('GET error', t => {
   const repoint = new Repoint({
     host: 'http://api.example.com/v1',
@@ -795,6 +819,34 @@ test('PATCH error', t => {
   users.patch({ id: 1 })
        .catch((e) => {
           t.deepEqual(e.message, "Unauthorized")
+          t.end()
+       })
+})
+
+test('handle 204 status with no content', t => {
+  const responseHandler = function(response) {
+    if (response.status === 204) {
+      return Promise.resolve({})
+    }
+
+   return response.json()
+  }
+
+  const repoint = new Repoint({
+    host: 'http://api.example.com/v1',
+    responseHandler: responseHandler
+  })
+
+  const users = repoint.generate('users')
+
+  const interceptor = nock('http://api.example.com/v1')
+    .post('/users')
+    .reply(204)
+
+  users.post({ name: "Whatever" })
+       .then((data) => {
+          t.deepEqual(data, {})
+          nock.removeInterceptor(interceptor)
           t.end()
        })
 })

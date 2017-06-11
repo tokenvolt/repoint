@@ -9,6 +9,14 @@
     "key-spacing": [0, { "align": "value" }],
     "no-multi-spaces": [2, { exceptions: { "ImportDeclaration": true, "VariableDeclarator": true } }],
     "no-param-reassign": [2, { "props": false }],
-    "quote-props": [2, "consistent-as-needed"]
-  }
+    "quote-props": [2, "consistent-as-needed"],
+    "no-confusing-arrow": 0,
+    "prefer-const": 0
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    },
+  },
+
 }

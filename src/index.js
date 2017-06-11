@@ -2,16 +2,36 @@ import fetch from 'isomorphic-fetch'
 import R from './ramda/ramda.repoint'
 import param from 'jquery-param'
 import pluralize from 'pluralize'
-import { capitalize, missingParams, urlParamsTransformer, identity } from './helpers'
+import {
+  capitalize,
+  missingParams,
+  urlParamsTransformer,
+  identity,
+  objectToFormData
+} from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
+const defaultHeaders = (type) => {
+  if (type === 'json') {
+    return { 'Content-Type': 'application/json' }
+  }
+
+  return {}
+}
+
+const defaultFetchOpts = {}
+
+const jsonResponseHandler = (response) => response.json()
+
+
 // :: (String) -> (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}) => {
+const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
   const idAttributeObject = R.pick(idAttributes, params)
   const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
   const lastIdAttribute = idAttributes[0]
   let bodyParams
   let buildedUrl
+  let data
 
   if (missingIdAttibutes.length !== 0) {
     throw new Error(`You must provide "${missingIdAttibutes}" in params`)
@@ -27,22 +47,27 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
     buildedUrl = urlParamsTransformer(url, idAttributeObject)
   }
 
+  if (type === 'form') {
+    data = objectToFormData(config.paramsTransform(bodyParams))
+  } else {
+    data = JSON.stringify(config.paramsTransform(bodyParams))
+  }
+
   return fetch(`${config.host}${buildedUrl}`, {
+    ...config.fetchOpts,
     method:  methodName,
-    body:    JSON.stringify(config.paramsTransform(bodyParams)),
-    headers: R.merge({
-      'Content-Type': 'application/json'
-    }, headers)
+    body:    data,
+    headers: R.merge(defaultHeaders(type), headers)
   })
     .then(config.beforeError)
-    .then(response => response.json())
+    .then(config.responseHandler)
     .then(json => json)
-    .then(response => config.beforeSuccess(response))
+    .then(config.beforeSuccess)
 })
 
 const commonMethods = {
   // :: (k: v) -> String -> [String] -> (k: v) -> (k: v) -> (a -> b)
-  get: R.curry((config, url, idAttributes, params, headers = {}) => {
+  get: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
@@ -66,23 +91,23 @@ const commonMethods = {
     const fullUrl = R.isEmpty(queryParams) ? `${config.host}${buildedUrl}` : `${config.host}${buildedUrl}?${param(config.paramsTransform(queryParams))}`
 
     return fetch(fullUrl, {
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      ...config.fetchOpts,
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(config.responseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   }),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-  post: R.curry((config, url, idAttributes, params, headers = {}) => {
+  post: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
     let bodyParams
     let buildedUrl
+    let data
 
     if (missingIdAttibutes.length !== 0) {
       throw new Error(`You must provide "${missingIdAttibutes}" in params`)
@@ -98,15 +123,20 @@ const commonMethods = {
       buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
 
+    if (type === 'form') {
+      data = objectToFormData(config.paramsTransform(bodyParams))
+    } else {
+      data = JSON.stringify(config.paramsTransform(bodyParams))
+    }
+
     return fetch(`${config.host}${buildedUrl}`, {
+      ...config.fetchOpts,
       method:  'POST',
-      body:    JSON.stringify(config.paramsTransform(bodyParams)),
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      body:    data,
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(config.responseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   }),
@@ -115,7 +145,7 @@ const commonMethods = {
   patch: modifyWith('PATCH'),
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
-  delete: R.curry((config, url, idAttributes, params, headers = {}) => {
+  delete: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
@@ -134,13 +164,12 @@ const commonMethods = {
     }
 
     return fetch(`${config.host}${buildedUrl}`, {
+      ...config.fetchOpts,
       method:  'DELETE',
-      headers: R.merge({
-        'Content-Type': 'application/json'
-      }, headers)
+      headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
-      .then(response => response.json())
+      .then(config.responseHandler)
       .then(json => json)
       .then(response => config.beforeSuccess(response))
   })
@@ -152,7 +181,9 @@ class Repoint {
       host: options.host || '',
       paramsTransform: options.paramsTransform || identity,
       beforeSuccess: options.beforeSuccess || identity,
-      beforeError: options.beforeError || identity
+      beforeError: options.beforeError || identity,
+      fetchOpts: options.fetchOpts || defaultFetchOpts,
+      responseHandler: options.responseHandler || jsonResponseHandler
     }
   }
 
@@ -171,9 +202,11 @@ class Repoint {
       const idAttribute = options.idAttribute || 'id'
 
       if (nestedEndpoint !== undefined && nestedEndpoint !== null) {
+        const reversedNestedNamespacedIdAttributes = nestedNamespacedIdAttributes.slice().reverse()
+
         urls = {
-          collection: `${nestedEndpoint.collectionUrl}/:${nestedNamespacedIdAttributes[0]}/${namespacedName}`,
-          member:     `${nestedEndpoint.collectionUrl}/:${nestedNamespacedIdAttributes[0]}/${namespacedName}/:${idAttribute}`
+          collection: `${nestedEndpoint.collectionUrl}/:${reversedNestedNamespacedIdAttributes[0]}/${namespacedName}`,
+          member:     `${nestedEndpoint.collectionUrl}/:${reversedNestedNamespacedIdAttributes[0]}/${namespacedName}/:${idAttribute}`
         }
       } else {
         urls = {
