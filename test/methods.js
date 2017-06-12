@@ -308,6 +308,23 @@ test('destroy', t => {
         })
 })
 
+test('destroy with params', t => {
+  const users = repoint.generate('users')
+  const mockedResponse = { id: 1 }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/users/1', { someParam: 2 })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1 }
+
+  users.destroy({ id: 1, someParam: 2 })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
 test('nested destroy request', t => {
   const users = repoint.generate('users', { nestUnder: repoint.generate('rooms') })
   const mockedResponse = { id: 1, first_name: 'Alex' }
