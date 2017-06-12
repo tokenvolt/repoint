@@ -308,6 +308,26 @@ test('destroy', t => {
         })
 })
 
+test('destroy non-restful collection method', t => {
+  const companies = repoint.generate("companies")
+  const nodes = repoint.generate(
+    'nodes', { nestUnder: companies }, [{ method: 'delete', name: 'bulk_destroy', on: 'collection' }]
+  )
+  const mockedResponse = { id: 1 }
+
+  const interceptor = nock('http://api.example.com/v1')
+                        .delete('/companies/1/nodes/bulk_destroy', { ids: [1, 2, 3] })
+                        .reply(200, mockedResponse)
+
+  const actualResponse = { id: 1 }
+
+  nodes.bulk_destroy({ companyId: 1, ids: [1,2,3] })
+       .then((data) => {
+          t.deepEqual(data, actualResponse)
+          t.end()
+        })
+})
+
 test('destroy with params', t => {
   const users = repoint.generate('users')
   const mockedResponse = { id: 1 }
@@ -867,3 +887,4 @@ test('handle 204 status with no content', t => {
           t.end()
        })
 })
+
