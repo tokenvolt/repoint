@@ -11,12 +11,12 @@ import {
 } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
-const defaultHeaders = (type, headers) => {
+const defaultHeaders = (type, prepareHeaders) => {
   if (type === 'json') {
-    return R.merge({ 'Content-Type': 'application/json' }, headers)
+    return R.merge({ 'Content-Type': 'application/json' }, prepareHeaders)
   }
 
-  return R.merge({}, headers)
+  return R.merge({}, prepareHeaders)
 }
 
 const defaultFetchOpts = {}
