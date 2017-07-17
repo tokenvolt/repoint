@@ -149,6 +149,7 @@ const commonMethods = {
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
+    let bodyParams
     let buildedUrl
 
     if (missingIdAttibutes.length !== 0) {
@@ -156,16 +157,21 @@ const commonMethods = {
     }
 
     if (idAttributes.length === 1 && lastIdAttribute === IS_COLLECTION) {
+      bodyParams = params
       buildedUrl = url
     }
 
     if (idAttributes.length > 1 || lastIdAttribute !== IS_COLLECTION) {
+      bodyParams = R.omit(idAttributes, params)
       buildedUrl = urlParamsTransformer(url, idAttributeObject)
     }
+
+    const data = JSON.stringify(config.paramsTransform(bodyParams))
 
     return fetch(`${config.host}${buildedUrl}`, {
       ...config.fetchOpts,
       method:  'DELETE',
+      body: data,
       headers: R.merge(defaultHeaders(type), headers)
     })
       .then(config.beforeError)
