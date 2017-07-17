@@ -11,12 +11,12 @@ import {
 } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
-const defaultHeaders = (type, prepareHeaders) => {
+const prepareHeaders = (type, headers) => {
   if (type === 'json') {
-    return R.merge({ 'Content-Type': 'application/json' }, prepareHeaders)
+    return R.merge({ 'Content-Type': 'application/json' }, headers)
   }
 
-  return R.merge({}, prepareHeaders)
+  return R.merge({}, headers)
 }
 
 const defaultFetchOpts = {}
@@ -57,7 +57,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
     ...config.fetchOpts,
     method:  methodName,
     body:    data,
-    headers: R.merge(defaultHeaders(type, config.headers), headers)
+    headers: R.merge(prepareHeaders(type, config.headers), headers)
   })
     .then(config.beforeError)
     .then(config.responseHandler)
@@ -92,7 +92,7 @@ const commonMethods = {
 
     return fetch(fullUrl, {
       ...config.fetchOpts,
-      headers: R.merge(defaultHeaders(type, config.headers), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
@@ -133,7 +133,7 @@ const commonMethods = {
       ...config.fetchOpts,
       method:  'POST',
       body:    data,
-      headers: R.merge(defaultHeaders(type, config.headers), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
@@ -172,7 +172,7 @@ const commonMethods = {
       ...config.fetchOpts,
       method:  'DELETE',
       body: data,
-      headers: R.merge(defaultHeaders(type, config.headers), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
