@@ -11,12 +11,12 @@ import {
 } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
 
-const defaultHeaders = (type) => {
+const prepareHeaders = (type, headers) => {
   if (type === 'json') {
-    return { 'Content-Type': 'application/json' }
+    return R.merge({ 'Content-Type': 'application/json' }, headers)
   }
 
-  return {}
+  return R.merge({}, headers)
 }
 
 const defaultFetchOpts = {}
@@ -57,7 +57,7 @@ const modifyWith = (methodName) => R.curry((config, url, idAttributes, params, h
     ...config.fetchOpts,
     method:  methodName,
     body:    data,
-    headers: R.merge(defaultHeaders(type), headers)
+    headers: R.merge(prepareHeaders(type, config.headers), headers)
   })
     .then(config.beforeError)
     .then(config.responseHandler)
@@ -92,7 +92,7 @@ const commonMethods = {
 
     return fetch(fullUrl, {
       ...config.fetchOpts,
-      headers: R.merge(defaultHeaders(type), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
@@ -133,7 +133,7 @@ const commonMethods = {
       ...config.fetchOpts,
       method:  'POST',
       body:    data,
-      headers: R.merge(defaultHeaders(type), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
@@ -174,7 +174,7 @@ const commonMethods = {
       ...config.fetchOpts,
       method:  'DELETE',
       body: data,
-      headers: R.merge(defaultHeaders(type), headers)
+      headers: R.merge(prepareHeaders(type, config.headers), headers)
     })
       .then(config.beforeError)
       .then(config.responseHandler)
@@ -187,6 +187,7 @@ class Repoint {
   constructor(options = {}) {
     this.config = {
       host: options.host || '',
+      headers: options.headers || {},
       paramsTransform: options.paramsTransform || identity,
       beforeSuccess: options.beforeSuccess || identity,
       beforeError: options.beforeError || identity,
