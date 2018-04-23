@@ -211,7 +211,7 @@ class Repoint {
       const idAttribute = options.idAttribute || 'id'
 
       if (nestedEndpoint !== undefined && nestedEndpoint !== null) {
-        const reversedNestedNamespacedIdAttributes = nestedNamespacedIdAttributes.slice().reverse()
+        const reversedNestedNamespacedIdAttributes = [...nestedNamespacedIdAttributes].reverse()
 
         urls = {
           collection: `${nestedEndpoint.collectionUrl}/:${reversedNestedNamespacedIdAttributes[0]}/${namespacedName}`,
@@ -262,9 +262,11 @@ class Repoint {
     }
 
     if (nestedEndpoint !== undefined && nestedEndpoint !== null) {
+      const reversedNestedNamespacedIdAttributes = [...nestedNamespacedIdAttributes].reverse()
+
       urls = {
         collection: null,
-        member:     `${nestedEndpoint.collectionUrl}/:${nestedNamespacedIdAttributes[0]}/${namespacedName}`
+        member:     `${nestedEndpoint.collectionUrl}/:${reversedNestedNamespacedIdAttributes[0]}/${namespacedName}`
       }
     } else {
       urls = {

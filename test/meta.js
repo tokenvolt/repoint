@@ -99,6 +99,20 @@ test('deeply nested endpoints with idAttribute', t => {
   t.end()
 })
 
+test('deeply nested endpoints for singular resource', t => {
+  const loans = repoint.generate("loans")
+  const negotiations = repoint.generate("negotiations", { nestUnder: loans })
+  const offers = repoint.generate("offers", { nestUnder: negotiations, singular: true })
+
+  t.equal(offers.name, 'offers', 'name property == "offers"')
+  t.equal(offers.collectionUrl, null, 'no collectionUrl')
+  t.equal(offers.memberUrl, '/loans/:loanId/negotiations/:negotiationId/offers', 'memberUrl == "loans/:loanId/negotiations/:negotiationId/offers"')
+  t.deepEqual(offers.idAttributes, ['id', 'id'], 'idAttributes property == [id, id]')
+  t.deepEqual(offers.namespacedIdAttributes, ['loanId', 'negotiationId'], 'namespacedIdAttributes property == [loanId, negotiationId, offerId]')
+
+  t.end()
+})
+
 test('nonRestful methods', t => {
   const users = repoint.generate('users', {}, [{method: 'post', name: 'login', on: 'collection'}])
 
