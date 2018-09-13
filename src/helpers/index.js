@@ -1,4 +1,5 @@
 import { IS_COLLECTION } from './constants'
+import param from 'jquery-param'
 import R from '../ramda/ramda.repoint'
 
 export function capitalize(str) {
@@ -9,11 +10,33 @@ export const missingParams = (obj, attrs) => attrs.filter((el) => el !== IS_COLL
 
 const removeFirstChar = (val) => val.slice(1, val.length)
 
+const urlParamPattern = /^:([a-zA-Z0-9-_]*[a-zA-Z0-9]{1})(<(.+?)>)?/
+
 export const urlParamsTransformer = (url, params) => {
-  const pattern = /^:([a-zA-Z0-9-_]*[a-zA-Z0-9]{1})(<(.+?)>)?/
   return url.split('/')
-            .map((token) => pattern.test(token) ? token.replace(pattern, params[removeFirstChar(token)]) : token)
+            .map((token) => urlParamPattern.test(token) ? token.replace(urlParamPattern, params[removeFirstChar(token)]) : token)
             .join('/')
+}
+
+const extractUrlParams = (url) => {
+  return url.split('/')
+            .filter(token => urlParamPattern.test(token))
+            .map(token => removeFirstChar(token))
+}
+
+// TODO: use this function for commonMethods in future versions
+export const buildUrl = (url, params = {}) => {
+  const urlParams = extractUrlParams(url)
+  const missingIdAttibutes = missingParams(params, urlParams)
+
+  if (missingIdAttibutes.length !== 0) {
+    throw new Error(`You must provide "${missingIdAttibutes}" in params`)
+  }
+
+  const buildedUrl = urlParamsTransformer(url, params)
+  const queryParams = R.omit(extractUrlParams(url), params)
+
+  return R.isEmpty(queryParams) ? `${buildedUrl}` : `${buildedUrl}?${param(queryParams)}`
 }
 
 export const identity = (val) => val

@@ -7,6 +7,7 @@ import {
   missingParams,
   urlParamsTransformer,
   identity,
+  buildUrl,
   objectToFormData
 } from './helpers'
 import { IS_COLLECTION } from './helpers/constants'
@@ -146,7 +147,6 @@ const commonMethods = {
 
   // :: (k: v) -> String -> [String] -> (k: v) -> (a -> b)
   delete: R.curry((config, url, idAttributes, params, headers = {}, type = 'json') => {
-    console.log(idAttributes)
     const idAttributeObject = R.pick(idAttributes, params)
     const missingIdAttibutes = missingParams(idAttributeObject, idAttributes)
     const lastIdAttribute = idAttributes[0]
@@ -230,7 +230,7 @@ class Repoint {
 
       const nonRestful = nonRestfulRoutes.reduce((result, routeConfig) => {
         const url = `${urls[routeConfig.on]}/${routeConfig.name}`
-        console.log([...nestedNamespacedIdAttributes, (routeConfig.on === 'collection' ? IS_COLLECTION : idAttribute)].reduce((a, b) => a.concat(b), []))
+
         result[routeConfig.name] = commonMethods[routeConfig.method](this.config)(url)(
           [...nestedNamespacedIdAttributes, (routeConfig.on === 'collection' ? IS_COLLECTION : idAttribute)].reduce((a, b) => a.concat(b), [])
         )
@@ -295,5 +295,7 @@ class Repoint {
     })({})
   }
 }
+
+export { buildUrl }
 
 export default Repoint

@@ -11,7 +11,8 @@
     "no-param-reassign": [2, { "props": false }],
     "quote-props": [2, "consistent-as-needed"],
     "no-confusing-arrow": 0,
-    "prefer-const": 0
+    "prefer-const": 0,
+    "arrow-body-style": 0
   },
   "parserOptions": {
     "ecmaFeatures": {
