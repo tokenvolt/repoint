@@ -6,7 +6,10 @@ export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+
 export const missingParams = (obj, attrs) => attrs.filter((el) => el !== IS_COLLECTION).filter((el) => !R.contains(el, R.keys(obj)))
+
+const isArray = (arg) => Object.prototype.toString.call(arg) === '[object Array]'
 
 const removeFirstChar = (val) => val.slice(1, val.length)
 
@@ -43,22 +46,17 @@ export const identity = (val) => val
 
 export const objectToFormData = (obj, form, namespace) => {
   const fd = form || new FormData()
-  let formKey
+  const objectIsArray = isArray(obj)
 
   for (let property in obj) {
     if (obj.hasOwnProperty(property)) {
-      if (namespace) {
-        formKey = `${namespace}[${property}]`
-      } else {
-        formKey = property
-      }
+      const propertyName = objectIsArray ? '[]' : `[${property}]`
+      const formKey = namespace ? `${namespace}${propertyName}` : property
 
       // if the property is an object, but not a File,
       // use recursivity.
       if (typeof obj[property] === 'object' && !(obj[property] instanceof File)) {
-        const newNamespaceName = namespace ? `${namespace}[${property}]` : property
-
-        objectToFormData(obj[property], fd, newNamespaceName)
+        objectToFormData(obj[property], fd, formKey)
       } else {
         // if it's a string or a File object
         fd.append(formKey, obj[property])
