@@ -56,7 +56,9 @@ export const objectToFormData = (obj, form, namespace) => {
       // if the property is an object, but not a File,
       // use recursivity.
       if (typeof obj[property] === 'object' && !(obj[property] instanceof File)) {
-        objectToFormData(obj[property], fd, property)
+        const newNamespaceName = namespace ? `${namespace}[${property}]` : property
+
+        objectToFormData(obj[property], fd, newNamespaceName)
       } else {
         // if it's a string or a File object
         fd.append(formKey, obj[property])
